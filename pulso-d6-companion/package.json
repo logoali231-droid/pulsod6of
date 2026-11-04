@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "vite preview --host",
+    "serve": "npx serve dist -l 4173"
   },
   "dependencies": {
     "react": "^19.3.1",

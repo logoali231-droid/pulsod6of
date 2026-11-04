@@ -5,74 +5,107 @@ import CombatHelper from './components/CombatHelper'
 import RulesReference from './components/RulesReference'
 import './App.css'
 
-type Tab = 'dados' | 'ficha' | 'combate' | 'regras';
+type Tab = 'characters' | 'dice' | 'combat' | 'reference';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('dados');
+  const [activeTab, setActiveTab] = useState<Tab>('characters');
 
   const tabs = [
-    { id: 'dados' as Tab, label: '🎲 Dados', icon: '🎲' },
-    { id: 'ficha' as Tab, label: '📋 Ficha', icon: '📋' },
-    { id: 'combate' as Tab, label: '⚔️ Combate', icon: '⚔️' },
-    { id: 'regras' as Tab, label: '📖 Regras', icon: '📖' },
+    { id: 'characters' as Tab, label: 'Personagem', icon: '👤' },
+    { id: 'dice' as Tab, label: 'Dados', icon: '🎲' },
+    { id: 'combat' as Tab, label: 'Combate', icon: '⚔️' },
+    { id: 'reference' as Tab, label: 'Regras', icon: '📖' },
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5' }}>
+    <div style={{ minHeight: '100vh', background: '#0a0a0f', display: 'flex', flexDirection: 'column', maxWidth: '100%' }}>
       <header style={{ 
-        background: '#1a1a1a', 
-        color: 'white', 
-        padding: '1rem',
-        textAlign: 'center',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+        background: 'linear-gradient(180deg, #15151a 0%, #0a0a0f 100%)', 
+        padding: '0.75rem 1rem',
+        borderBottom: '1px solid #2a2a35',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100
       }}>
-        <h1 style={{ margin: 0, fontSize: '1.8rem', color: 'white' }}>PULSO d6</h1>
-        <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', opacity: 0.9 }}>Companheiro de RPG</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+          <div style={{ 
+            width: '8px', 
+            height: '8px', 
+            background: '#e63946', 
+            borderRadius: '50%',
+            boxShadow: '0 0 8px #e63946'
+          }}></div>
+          <h1 style={{ 
+            margin: 0, 
+            fontSize: '1.25rem', 
+            color: '#ffffff',
+            fontWeight: '700',
+            letterSpacing: '1.5px',
+            textTransform: 'uppercase'
+          }}>Pulso d6</h1>
+          <div style={{ 
+            width: '8px', 
+            height: '8px', 
+            background: '#e63946', 
+            borderRadius: '50%',
+            boxShadow: '0 0 8px #e63946'
+          }}></div>
+        </div>
       </header>
 
+      <main style={{ flex: 1, overflowX: 'hidden', overflowY: 'auto', paddingBottom: '70px' }}>
+        {activeTab === 'characters' && <CharacterSheet />}
+        {activeTab === 'dice' && <DiceRoller />}
+        {activeTab === 'combat' && <CombatHelper />}
+        {activeTab === 'reference' && <RulesReference />}
+      </main>
+
       <nav style={{ 
-        display: 'flex', 
-        background: '#2d2d2d',
-        overflowX: 'auto',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        background: 'linear-gradient(180deg, #15151a 0%, #0a0a0f 100%)',
+        borderTop: '1px solid #2a2a35',
+        padding: '0.375rem 0 calc(0.375rem + env(safe-area-inset-bottom, 0)) 0',
+        zIndex: 100
       }}>
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{
-              flex: '1 0 auto',
-              padding: '0.75rem 1rem',
-              background: activeTab === tab.id ? '#d32f2f' : 'transparent',
-              color: 'white',
+              background: 'transparent',
               border: 'none',
-              borderBottom: activeTab === tab.id ? '3px solid #ff5252' : '3px solid transparent',
+              color: activeTab === tab.id ? '#e63946' : '#6b6b7b',
+              padding: '0.375rem 0.25rem',
               cursor: 'pointer',
-              fontSize: '0.9rem',
-              whiteSpace: 'nowrap'
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '0.25rem',
+              transition: 'all 0.2s ease',
+              fontSize: '0.7rem',
+              fontWeight: activeTab === tab.id ? '600' : '500'
             }}
           >
-            {tab.label}
+            <span style={{ fontSize: '1.375rem', lineHeight: 1 }}>{tab.icon}</span>
+            <span style={{ fontSize: '0.65rem', letterSpacing: '0.3px' }}>{tab.label}</span>
+            {activeTab === tab.id && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                width: '40px',
+                height: '2px',
+                background: '#e63946',
+                boxShadow: '0 0 8px #e63946'
+              }}></div>
+            )}
           </button>
         ))}
       </nav>
-
-      <main>
-        {activeTab === 'dados' && <DiceRoller />}
-        {activeTab === 'ficha' && <CharacterSheet />}
-        {activeTab === 'combate' && <CombatHelper />}
-        {activeTab === 'regras' && <RulesReference />}
-      </main>
-
-      <footer style={{ 
-        textAlign: 'center', 
-        padding: '1rem', 
-        fontSize: '0.8rem', 
-        color: '#666',
-        marginTop: '2rem'
-      }}>
-        Pulso d6 v2.6 Beta 0.8 • Companheiro para auxiliar nas regras
-      </footer>
     </div>
   )
 }

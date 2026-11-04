@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { rollDice, calculatePool, isCriticalFailure, getDifficultyLabel } from '../utils/dice';
 import type { DiceRollResult } from '../utils/dice';
 
@@ -30,141 +30,216 @@ export default function DiceRoller({ defaultAttribute = 2, defaultSkill = 0 }: D
   const getResultText = () => {
     if (!result) return null;
     if (isCriticalFailure(result)) {
-      return <span style={{ color: '#ff4444', fontWeight: 'bold' }}>FALHA CRÍTICA!</span>;
+      return <span style={{ color: '#e63946', fontWeight: '700', fontSize: '1.4rem' }}>FALHA CRÍTICA</span>;
     }
     if (difficulty > 0) {
       if (result.successes >= difficulty) {
         const excess = result.successes - difficulty;
         return (
-          <span style={{ color: '#44ff44', fontWeight: 'bold' }}>
-            SUCESSO! {excess > 0 && `(+${excess} excedente${excess > 1 ? 's' : ''})`}
+          <span style={{ color: '#2fbf71', fontWeight: '700', fontSize: '1.4rem' }}>
+            SUCESSO {excess > 0 && `+${excess}`}
           </span>
         );
       } else {
         const needed = difficulty - result.successes;
         return (
-          <span style={{ color: '#ffaa44', fontWeight: 'bold' }}>
-            FALHA - Faltam {needed} sucesso{needed > 1 ? 's' : ''}
+          <span style={{ color: '#f4a261', fontWeight: '700', fontSize: '1.2rem' }}>
+            FALHA • Faltam {needed}
           </span>
         );
       }
     }
-    return <span style={{ color: '#44aaff', fontWeight: 'bold' }}>{result.successes} sucesso{result.successes !== 1 ? 's' : ''}</span>;
+    return <span style={{ color: '#457b9d', fontWeight: '700', fontSize: '1.4rem' }}>{result.successes} {result.successes === 1 ? 'SUCESSO' : 'SUCESSOS'}</span>;
+  };
+
+  const cardStyle = {
+    background: 'var(--bg-card)',
+    borderRadius: '12px',
+    border: '1px solid var(--border-color)',
+    margin: '0.75rem',
+    overflow: 'hidden'
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.625rem',
+    fontSize: '1rem',
+    background: 'var(--bg-elevated)',
+    color: 'var(--text-primary)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '8px',
+    outline: 'none',
+    textAlign: 'center' as const,
+    fontWeight: '600'
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '0.7rem',
+    marginBottom: '0.375rem',
+    color: 'var(--text-tertiary)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.8px',
+    fontWeight: '600'
   };
 
   return (
-    <div style={{ padding: '1rem', maxWidth: '500px', margin: '0 auto' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Rolador de Dados</h2>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-        <div>
-          <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Atributo (1-5)</label>
-          <input
-            type="number"
-            min="1"
-            max="5"
-            value={attribute}
-            onChange={(e) => setAttribute(parseInt(e.target.value) || 1)}
-            style={{ width: '100%', padding: '0.5rem', fontSize: '1rem' }}
-          />
+    <div style={{ paddingBottom: '1rem' }}>
+      <div style={cardStyle}>
+        <div style={{ padding: '0.875rem 1rem', borderBottom: '1px solid var(--border-color)' }}>
+          <h2 style={{ fontSize: '0.9rem', color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Configuração</h2>
         </div>
-        <div>
-          <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Perícia (0-5)</label>
-          <input
-            type="number"
-            min="0"
-            max="5"
-            value={skill}
-            onChange={(e) => setSkill(parseInt(e.target.value) || 0)}
-            style={{ width: '100%', padding: '0.5rem', fontSize: '1rem' }}
-          />
+        <div style={{ padding: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.875rem' }}>
+            <div>
+              <label style={labelStyle}>Atributo</label>
+              <input
+                type="number"
+                min="1"
+                max="5"
+                value={attribute}
+                onChange={(e) => setAttribute(parseInt(e.target.value) || 1)}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Perícia</label>
+              <input
+                type="number"
+                min="0"
+                max="5"
+                value={skill}
+                onChange={(e) => setSkill(parseInt(e.target.value) || 0)}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.875rem' }}>
+            <div>
+              <label style={labelStyle}>Modificadores</label>
+              <input
+                type="number"
+                value={modifiers}
+                onChange={(e) => setModifiers(parseInt(e.target.value) || 0)}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Dificuldade</label>
+              <input
+                type="number"
+                min="0"
+                value={difficulty}
+                onChange={(e) => setDifficulty(parseInt(e.target.value) || 0)}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+            <input
+              type="checkbox"
+              checked={criticalsEnabled}
+              onChange={(e) => setCriticalsEnabled(e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: 'var(--accent-primary)' }}
+            />
+            <span>6 conta como 2 sucessos</span>
+          </label>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-        <div>
-          <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Modificadores (+/-)</label>
-          <input
-            type="number"
-            value={modifiers}
-            onChange={(e) => setModifiers(parseInt(e.target.value) || 0)}
-            style={{ width: '100%', padding: '0.5rem', fontSize: '1rem' }}
-          />
+      <div style={cardStyle}>
+        <div style={{ padding: '1rem', textAlign: 'center', background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(230, 57, 70, 0.1) 100%)' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.375rem', letterSpacing: '1px' }}>PILHA</div>
+          <div style={{ fontSize: '2.5rem', fontWeight: '700', color: 'var(--accent-primary)', lineHeight: 1 }}>{pool}</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>d6</div>
+          {difficulty > 0 && (
+            <div style={{ marginTop: '0.75rem', padding: '0.5rem', background: 'var(--bg-elevated)', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              Alvo: {difficulty} sucesso{difficulty !== 1 ? 's' : ''} • {getDifficultyLabel(difficulty)}
+            </div>
+          )}
         </div>
-        <div>
-          <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Dificuldade</label>
-          <input
-            type="number"
-            min="0"
-            value={difficulty}
-            onChange={(e) => setDifficulty(parseInt(e.target.value) || 0)}
-            style={{ width: '100%', padding: '0.5rem', fontSize: '1rem' }}
-          />
+        <div style={{ padding: '0.875rem' }}>
+          <button
+            onClick={handleRoll}
+            disabled={rolling}
+            style={{
+              width: '100%',
+              padding: '0.875rem',
+              fontSize: '0.95rem',
+              background: rolling 
+                ? 'var(--bg-elevated)' 
+                : 'linear-gradient(90deg, var(--accent-primary) 0%, #c1121f 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: rolling ? 'not-allowed' : 'pointer',
+              fontWeight: '700',
+              letterSpacing: '1.2px',
+              boxShadow: rolling ? 'none' : '0 4px 12px rgba(230, 57, 70, 0.4)'
+            }}
+          >
+            {rolling ? 'ROLANDO...' : 'ROLAR'}
+          </button>
         </div>
       </div>
-
-      <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
-        <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={criticalsEnabled}
-            onChange={(e) => setCriticalsEnabled(e.target.checked)}
-          />
-          <span>6 = 2 sucessos (Críticos)</span>
-        </label>
-      </div>
-
-      <div style={{ textAlign: 'center', marginBottom: '1rem', padding: '0.75rem', background: '#f0f0f0', borderRadius: '8px' }}>
-        <strong>Pilha: {pool} dado{pool !== 1 ? 's' : ''}</strong>
-        {difficulty > 0 && <div style={{ fontSize: '0.9rem', marginTop: '0.25rem' }}>Dificuldade: {difficulty} - {getDifficultyLabel(difficulty)}</div>}
-      </div>
-
-      <button
-        onClick={handleRoll}
-        disabled={rolling}
-        style={{
-          width: '100%',
-          padding: '0.75rem',
-          fontSize: '1.1rem',
-          background: rolling ? '#ccc' : '#d32f2f',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: rolling ? 'not-allowed' : 'pointer',
-          fontWeight: 'bold'
-        }}
-      >
-        {rolling ? 'Rolando...' : 'ROLAR'}
-      </button>
 
       {result && (
-        <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f9f9f9', borderRadius: '8px', textAlign: 'center' }}>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '0.75rem' }}>
-            {result.dice.map((d, i) => (
-              <div
-                key={i}
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: d === 6 ? '#44ff44' : d >= 4 ? '#ffff44' : d === 1 ? '#ff4444' : '#ddd',
-                  border: '2px solid #333',
-                  borderRadius: '4px',
-                  fontWeight: 'bold',
-                  fontSize: '1.2rem'
-                }}
-              >
-                {d}
-              </div>
-            ))}
-          </div>
-          <div style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>
+        <div style={cardStyle}>
+          <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', textAlign: 'center' }}>
             {getResultText()}
           </div>
-          <div style={{ fontSize: '0.9rem', color: '#666' }}>
-            {result.successes} sucessos totais • {result.ones} 1s{result.criticals > 0 && ` • ${result.criticals} 6s críticos`}
+          <div style={{ padding: '1rem' }}>
+            <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '0.875rem' }}>
+              {result.dice.map((d, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: '44px',
+                    height: '44px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: d === 6 
+                      ? 'linear-gradient(135deg, #2fbf71 0%, #1b9e55 100%)' 
+                      : d >= 4 
+                      ? 'linear-gradient(135deg, #f4e06a 0%, #f4a261 100%)' 
+                      : d === 1 
+                      ? 'linear-gradient(135deg, #e63946 0%, #c1121f 100%)' 
+                      : 'var(--bg-elevated)',
+                    color: '#000000',
+                    border: '2px solid',
+                    borderColor: d === 6 ? '#2fbf71' : d >= 4 ? '#f4a261' : d === 1 ? '#e63946' : 'var(--border-light)',
+                    borderRadius: '8px',
+                    fontWeight: '800',
+                    fontSize: '1.4rem',
+                    boxShadow: d === 6 ? '0 0 12px rgba(47, 191, 113, 0.6)' : d === 1 ? '0 0 12px rgba(230, 57, 70, 0.6)' : 'none'
+                  }}
+                >
+                  {d}
+                </div>
+              ))}
+            </div>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(3, 1fr)', 
+              gap: '0.5rem',
+              fontSize: '0.75rem'
+            }}>
+              <div style={{ textAlign: 'center', padding: '0.5rem', background: 'var(--bg-elevated)', borderRadius: '6px' }}>
+                <div style={{ color: 'var(--text-tertiary)' }}>Sucessos</div>
+                <div style={{ color: 'var(--text-primary)', fontWeight: '700', fontSize: '1rem' }}>{result.successes}</div>
+              </div>
+              <div style={{ textAlign: 'center', padding: '0.5rem', background: 'var(--bg-elevated)', borderRadius: '6px' }}>
+                <div style={{ color: 'var(--text-tertiary)' }}>Uns</div>
+                <div style={{ color: '#e63946', fontWeight: '700', fontSize: '1rem' }}>{result.ones}</div>
+              </div>
+              <div style={{ textAlign: 'center', padding: '0.5rem', background: 'var(--bg-elevated)', borderRadius: '6px' }}>
+                <div style={{ color: 'var(--text-tertiary)' }}>Críticos</div>
+                <div style={{ color: '#2fbf71', fontWeight: '700', fontSize: '1rem' }}>{result.criticals}</div>
+              </div>
+            </div>
           </div>
         </div>
       )}

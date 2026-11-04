@@ -3,6 +3,8 @@
 # Pulso d6 Companion - Installation Script
 # This script installs dependencies and builds the application
 
+cd "$(dirname "$0")"
+
 echo "╔══════════════════════════════════════════╗"
 echo "║     PULSO d6 COMPANION - INSTALAÇÃO     ║"
 echo "╚══════════════════════════════════════════╝"
